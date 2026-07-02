@@ -36,6 +36,19 @@
   .hover-glow {
     @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(108,99,255,0.4)];
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  * {
+    cursor: none !important;
+  }
 }
 
 /* Custom Scrollbar */

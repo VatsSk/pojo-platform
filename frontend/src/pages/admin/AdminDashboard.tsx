@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, LogOut, Activity, FolderGit2, Blocks, Settings } from 'lucide-react';
 import ProjectsManager from '../../components/admin/ProjectsManager';

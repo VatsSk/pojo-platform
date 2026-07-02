@@ -5,6 +5,11 @@ import Lenis from '@studio-freight/lenis';
 // Layout
 import Layout from './components/layout/Layout';
 
+// Custom Cursor and Widgets
+import CustomCursor from './components/ui/CustomCursor';
+import ChatWidget from './components/ui/ChatWidget';
+import WhatsAppWidget from './components/ui/WhatsAppWidget';
+
 // Pages (We'll create these next)
 import Home from './pages/Home';
 import About from './pages/About';
@@ -59,6 +64,9 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <CustomCursor />
+      <ChatWidget />
+      <WhatsAppWidget />
       <SmoothScrolling>
         <Routes>
           <Route path="/" element={<Layout />}>

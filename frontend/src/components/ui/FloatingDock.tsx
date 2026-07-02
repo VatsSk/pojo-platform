@@ -1,5 +1,4 @@
-import React from 'react';
-import { MessageCircle, Phone, Mail } from 'lucide-react';
+import { MessageCircle, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const FloatingContact = () => {
