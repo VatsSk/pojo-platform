@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+
 
 const Projects = () => {
   const [categories, setCategories] = useState<string[]>(["All"]);
@@ -7,14 +9,20 @@ const Projects = () => {
   const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8081/api/public/projects')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/projects`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           setProjects(data.data);
-          const cats = new Set(["All"]);
+          const cats = new Set<string>();
+          cats.add("All");
           data.data.forEach((p: any) => {
-            if (p.category) cats.add(p.category);
+            if (p.category) {
+              const cat = p.category.trim();
+              if (cat.toLowerCase() !== 'all') {
+                cats.add(cat);
+              }
+            }
           });
           setCategories(Array.from(cats));
         }
@@ -24,7 +32,7 @@ const Projects = () => {
   const filteredProjects = activeCategory === "All" ? projects : projects.filter(p => p.category === activeCategory);
 
   return (
-    <div className="pt-24 px-6 min-h-screen">
+    <div className="pt-24 px-6 min-h-screen relative">
       <div className="container mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -56,29 +64,31 @@ const Projects = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map((project, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.1 }}
-              className="glass-card rounded-2xl overflow-hidden group cursor-pointer"
-            >
-              <div className="aspect-video w-full bg-devnest-darker relative overflow-hidden">
-                 <div className="absolute inset-0 flex items-center justify-center text-devnest-muted">Project Preview</div>
-                 <div className="absolute inset-0 bg-gradient-to-t from-devnest-dark/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 group-hover:text-devnest-mint transition-colors">{project.title}</h3>
-                <p className="text-sm text-devnest-muted line-clamp-2">{project.description}</p>
+            <Link to={`/projects/${encodeURIComponent(project.title.toLowerCase().replace(/\s+/g, '-'))}`} key={project.id || i}>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1 }}
+                className="glass-card rounded-2xl overflow-hidden group cursor-pointer flex flex-col h-full"
+              >
+              {project.imageUrl && (
+                <div className="aspect-video w-full bg-devnest-darker relative overflow-hidden">
+                  <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+              )}
+              <div className="p-6 flex-1 flex flex-col">
+                <h3 className="text-xl font-bold group-hover:text-devnest-mint transition-colors">{project.title}</h3>
                 {project.technologies && project.technologies.length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {project.technologies.map((t: string, idx: number) => (
+                    {project.technologies.slice(0, 4).map((t: string, idx: number) => (
                       <span key={idx} className="text-xs bg-white/10 px-2 py-1 rounded text-devnest-mint">{t}</span>
                     ))}
+                    {project.technologies.length > 4 && <span className="text-xs bg-white/5 px-2 py-1 rounded text-devnest-muted">+{project.technologies.length - 4}</span>}
                   </div>
                 )}
               </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
           {filteredProjects.length === 0 && (
             <div className="col-span-full text-center py-12 text-devnest-muted">

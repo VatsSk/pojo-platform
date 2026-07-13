@@ -4,6 +4,7 @@ import ManifestoSection from '../components/sections/ManifestoSection';
 import BentoGrid from '../components/sections/BentoGrid';
 import TechStackOrbit from '../components/sections/TechStackOrbit';
 import ProjectsCarousel from '../components/sections/ProjectsCarousel';
+import ScrollingFeedback from '../components/sections/ScrollingFeedback';
 import ImmersiveCTA from '../components/sections/ImmersiveCTA';
 
 const Home = () => {
@@ -15,6 +16,7 @@ const Home = () => {
       <BentoGrid />
       <TechStackOrbit />
       <ProjectsCarousel />
+      <ScrollingFeedback />
       <ImmersiveCTA />
     </div>
   );

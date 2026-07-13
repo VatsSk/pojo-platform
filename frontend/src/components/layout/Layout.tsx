@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import FloatingDock from '../ui/FloatingDock';
 
 const Layout = () => {
   return (
@@ -11,7 +10,6 @@ const Layout = () => {
         <Outlet />
       </main>
       <Footer />
-      <FloatingDock />
     </div>
   );
 };

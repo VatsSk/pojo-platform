@@ -16,9 +16,18 @@ const navLinks = [
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [services, setServices] = useState<any[]>([]);
   const location = useLocation();
 
   useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/services`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setServices(data.data);
+        }
+      });
+      
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
@@ -47,35 +56,45 @@ const Navbar = () => {
         >
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="cursor-hover z-10">
+            <a href="/" className="cursor-hover z-10">
               <Logo size="md" showText={true} />
-            </Link>
+            </a>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1 relative">
               {navLinks.map((link) => {
                 const isActive = location.pathname === link.path;
                 return (
-                  <NavLink
-                    key={link.name}
-                    to={link.path}
-                    className="relative px-5 py-2 text-sm font-medium transition-colors duration-300 cursor-hover z-10"
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeNav"
-                        className="absolute inset-0 bg-devnest-mint/10 rounded-full border border-devnest-mint/20"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    )}
-                    <span
-                      className={`relative z-10 ${
-                        isActive ? 'text-devnest-mint' : 'text-devnest-muted hover:text-white'
-                      }`}
+                  <div key={link.name} className={link.name === 'Services' ? 'group relative' : ''}>
+                    <NavLink
+                      to={link.path}
+                      className="relative px-5 py-2 text-sm font-medium transition-colors duration-300 cursor-hover z-10 block"
                     >
-                      {link.name}
-                    </span>
-                  </NavLink>
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeNav"
+                          className="absolute inset-0 bg-devnest-mint/10 rounded-full border border-devnest-mint/20"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                      <span
+                        className={`relative z-10 ${
+                          isActive ? 'text-devnest-mint' : 'text-devnest-muted hover:text-white'
+                        }`}
+                      >
+                        {link.name}
+                      </span>
+                    </NavLink>
+                    {link.name === 'Services' && services.length > 0 && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-devnest-card/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 py-2 flex flex-col z-50">
+                        {services.map(s => (
+                          <Link key={s.id} to={`/services/${encodeURIComponent(s.title.toLowerCase().replace(/\s+/g, '-'))}`} className="px-4 py-2.5 text-sm text-devnest-muted hover:text-devnest-mint hover:bg-white/5 transition-colors block text-left">
+                            {s.title}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </nav>

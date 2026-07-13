@@ -5,17 +5,21 @@ import Lenis from '@studio-freight/lenis';
 // Layout
 import Layout from './components/layout/Layout';
 
-// Custom Cursor and Widgets
-import CustomCursor from './components/ui/CustomCursor';
+// Widgets
 import ChatWidget from './components/ui/ChatWidget';
 import WhatsAppWidget from './components/ui/WhatsAppWidget';
+import QuickNavigation from './components/ui/QuickNavigation';
 
 // Pages (We'll create these next)
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
+import ServiceDetails from './pages/ServiceDetails';
 import Projects from './pages/Projects';
+import ProjectDetails from './pages/ProjectDetails';
 import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -60,21 +64,36 @@ const SmoothScrolling = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const GlobalWidgets = () => {
+  const { pathname } = useLocation();
+  if (pathname.includes('/devnest-secure-admin')) return null;
+  
+  return (
+    <>
+      <QuickNavigation />
+      <ChatWidget />
+      <WhatsAppWidget />
+    </>
+  );
+};
+
 function App() {
   return (
     <Router>
       <ScrollToTop />
-      <CustomCursor />
-      <ChatWidget />
-      <WhatsAppWidget />
+      <GlobalWidgets />
       <SmoothScrolling>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="about" element={<About />} />
             <Route path="services" element={<Services />} />
+            <Route path="services/:id" element={<ServiceDetails />} />
             <Route path="projects" element={<Projects />} />
+            <Route path="projects/:id" element={<ProjectDetails />} />
             <Route path="contact" element={<Contact />} />
+            <Route path="privacy" element={<PrivacyPolicy />} />
+            <Route path="terms" element={<TermsOfService />} />
           </Route>
           
           <Route path="/devnest-secure-admin" element={<AdminLogin />} />

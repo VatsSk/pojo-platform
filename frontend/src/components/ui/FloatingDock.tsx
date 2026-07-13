@@ -25,7 +25,7 @@ const FloatingContact = () => {
 
       {/* WhatsApp Icon */}
       <motion.a
-        href="https://wa.me/919999999999"
+        href="https://wa.me/918051142835"
         target="_blank"
         rel="noopener noreferrer"
         initial={{ scale: 0, opacity: 0 }}

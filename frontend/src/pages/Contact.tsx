@@ -1,14 +1,68 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const Contact = () => {
-  const [submitted, setSubmitted] = useState(false);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const defaultConcern = searchParams.get('concern') || "";
+  const defaultMessage = searchParams.get('message') || "";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [siteConfig, setSiteConfig] = useState<any>({
+    contactEmail: 'pojo.platform@gmail.com',
+    contactPhone: '+91 80511 42835',
+    address: 'Remote & Bangalore, India'
+  });
+
+  React.useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/site-config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setSiteConfig((prev: any) => ({ ...prev, ...data.data }));
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Real implementation would call the Spring Boot API
+    setIsSubmitting(true);
+    setError(null);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data = {
+      name: formData.get('name'),
+      college: formData.get('college'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      concern: formData.get('concern'),
+      message: formData.get('message'),
+      department: 'N/A',
+      academicYear: 'N/A',
+      preferredContact: 'Email'
+    };
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        form.reset(); // clear all fields after success
+      } else {
+        setError('Failed to send request');
+      }
+    } catch(err) {
+      setError('Error sending request');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -42,7 +96,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-devnest-muted mb-1">Email Us</h4>
-                    <p className="text-white">hello@devnest.in</p>
+                    <p className="text-white">{siteConfig.contactEmail}</p>
                   </div>
                 </div>
                 
@@ -52,7 +106,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-devnest-muted mb-1">Call / WhatsApp</h4>
-                    <p className="text-white">+91 99999 99999</p>
+                    <p className="text-white">{siteConfig.contactPhone}</p>
                   </div>
                 </div>
                 
@@ -62,7 +116,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-devnest-muted mb-1">Location</h4>
-                    <p className="text-white">Remote & Bangalore, India</p>
+                    <p className="text-white">{siteConfig.address}</p>
                   </div>
                 </div>
               </div>
@@ -101,32 +155,44 @@ const Contact = () => {
               </AnimatePresence>
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl text-sm"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-devnest-muted">Full Name *</label>
-                    <input required type="text" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="John Doe" />
+                    <input name="name" required type="text" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="Alpha Neo" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-devnest-muted">College/University *</label>
-                    <input required type="text" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="XYZ College" />
+                    <label className="text-sm font-medium text-devnest-muted">College/University</label>
+                    <input name="college" type="text" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="Alpha University" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-devnest-muted">Email Address *</label>
-                    <input required type="email" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="john@example.com" />
+                    <input name="email" required type="email" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="alpha@gmail.com" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-devnest-muted">Phone Number *</label>
-                    <input required type="tel" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="+91 99999 99999" />
+                    <input name="phone" required type="tel" className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" placeholder="+91 xxxxx20136" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-devnest-muted">What do you need help with? *</label>
-                  <select required className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all appearance-none">
-                    <option value="" disabled selected>Select an option</option>
+                  <select name="concern" required defaultValue={defaultConcern} className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all appearance-none">
+                    <option value="" disabled>Select an option</option>
                     <option value="project_idea">Project Idea Consultation</option>
                     <option value="development">Project Development</option>
                     <option value="bug_fixing">Bug Fixing</option>
@@ -136,17 +202,27 @@ const Contact = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-devnest-muted">Message *</label>
-                  <textarea required rows={4} className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all resize-none" placeholder="Tell us more about your requirements..."></textarea>
+                  <label className="text-sm font-medium text-devnest-muted">Message</label>
+                  <textarea name="message" rows={4} defaultValue={defaultMessage} className="w-full bg-devnest-darker border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all resize-none" placeholder="Tell us more about your requirements..."></textarea>
                 </div>
 
-                <button 
-                  type="submit" 
-                  className="w-full py-4 rounded-xl bg-devnest-indigo text-white font-bold text-lg hover:bg-devnest-indigoHover hover:shadow-[0_0_20px_rgba(108,99,255,0.4)] transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                  Send Request
-                  <Send size={20} />
-                </button>
+                <div className="flex gap-4">
+                  <button 
+                    type="reset"
+                    disabled={isSubmitting}
+                    className="w-1/3 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Reset
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className={`w-2/3 py-4 rounded-xl text-white font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2 ${isSubmitting ? 'bg-devnest-indigo/50 cursor-not-allowed' : 'bg-devnest-indigo hover:bg-devnest-indigoHover hover:shadow-[0_0_20px_rgba(108,99,255,0.4)]'}`}
+                  >
+                    {isSubmitting ? 'Processing...' : 'Send Request'}
+                    {!isSubmitting && <Send size={20} />}
+                  </button>
+                </div>
               </form>
             </div>
           </motion.div>

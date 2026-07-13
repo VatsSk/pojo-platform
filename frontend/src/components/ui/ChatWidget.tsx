@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { Bot, X, Send } from 'lucide-react';
 
 interface Message {
   id: number;
@@ -20,7 +20,7 @@ const ChatWidget = () => {
     },
   ]);
   const [inputMessage, setInputMessage] = useState('');
-  const [step, setStep] = useState<'initial' | 'name' | 'email' | 'phone' | 'done'>('initial');
+  const [step, setStep] = useState<'initial' | 'name' | 'email' | 'phone' | 'message' | 'done'>('initial');
   const [userData, setUserData] = useState({
     name: '',
     email: '',
@@ -89,37 +89,36 @@ const ChatWidget = () => {
         return;
       }
       setUserData({ ...userData, phone: userInput });
+      setStep('message');
+      botReply("Awesome! 🙌 Now, what's your main concern or how can we help you today?");
+    } else if (step === 'message') {
       setStep('done');
+      setIsTyping(true);
 
       // Send to backend
       try {
-        const response = await fetch('/api/contact', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: userData.name,
             email: userData.email,
-            phone: userInput,
-            message: 'Chat inquiry',
+            phone: userData.phone,
+            college: 'N/A',
+            message: userInput,
           }),
         });
+        
+        setIsTyping(false);
 
         if (response.ok) {
-          botReply(
-            `Bet! Our team's gonna hit you up real soon, ${userData.name}! Keep it 💯`,
-            800
-          );
+          addMessage(`Bet! Our team's gonna hit you up real soon, ${userData.name}! Keep it 💯`, 'bot');
         } else {
-          botReply(
-            "Oops, something went sideways 😅 Can you try again or just DM us on WhatsApp?",
-            800
-          );
+          addMessage("Oops, something went sideways 😅 Can you try again or just DM us on WhatsApp?", 'bot');
         }
       } catch (error) {
-        botReply(
-          "Tech gremlins are acting up 👾 Hit us on WhatsApp instead?",
-          800
-        );
+        setIsTyping(false);
+        addMessage("Tech gremlins are acting up 👾 Hit us on WhatsApp instead?", 'bot');
       }
     }
   };
@@ -139,6 +138,8 @@ const ChatWidget = () => {
         return "Your email...";
       case 'phone':
         return "Your phone number...";
+      case 'message':
+        return "Type your concern...";
       default:
         return "Type a message...";
     }
@@ -162,16 +163,16 @@ const ChatWidget = () => {
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
             >
-              <MessageCircle size={28} />
+              <Bot size={28} />
             </motion.div>
-            {/* Notification badge */}
-            <motion.span
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold"
+            {/* Flashing GenZ Text */}
+            <motion.div
+              animate={{ opacity: [0.5, 1, 0.5], scale: [0.95, 1.05, 0.95] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 rounded-2xl rounded-br-none bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-bold text-white shadow-xl whitespace-nowrap pointer-events-none"
             >
-              1
-            </motion.span>
+              Hey, how can i help you dude? ✨
+            </motion.div>
           </motion.button>
         )}
       </AnimatePresence>
@@ -191,7 +192,7 @@ const ChatWidget = () => {
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <MessageCircle size={20} className="text-white" />
+                    <Bot size={20} className="text-white" />
                   </div>
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-purple-600"></span>
                 </div>

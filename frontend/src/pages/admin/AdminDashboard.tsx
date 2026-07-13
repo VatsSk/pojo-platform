@@ -4,10 +4,10 @@ import { Users, LogOut, Activity, FolderGit2, Blocks, Settings } from 'lucide-re
 import ProjectsManager from '../../components/admin/ProjectsManager';
 import ServicesManager from '../../components/admin/ServicesManager';
 import SiteConfigManager from '../../components/admin/SiteConfigManager';
+import InquiriesManager from '../../components/admin/InquiriesManager';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [contacts, setContacts] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('inquiries');
 
   useEffect(() => {
@@ -16,17 +16,6 @@ const AdminDashboard = () => {
       navigate('/devnest-secure-admin');
       return;
     }
-
-    fetch('http://localhost:8081/api/admin/contacts', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if(data.success) {
-        setContacts(data.data);
-      }
-    })
-    .catch(err => console.error(err));
   }, [navigate]);
 
   const handleLogout = () => {
@@ -72,53 +61,7 @@ const AdminDashboard = () => {
           </button>
         </div>
 
-        {activeTab === 'inquiries' && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <div className="glass-card p-6 rounded-2xl">
-                <div className="flex items-center gap-4 mb-4">
-                  <Users className="text-devnest-mint" />
-                  <h3 className="font-bold">Total Inquiries</h3>
-                </div>
-                <p className="text-4xl font-outfit font-bold">{contacts.length}</p>
-              </div>
-            </div>
-
-            <div className="glass-card p-8 rounded-3xl">
-              <h2 className="text-xl font-bold mb-6">Recent Contact Requests</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-white/10 text-devnest-muted text-sm">
-                      <th className="pb-4 font-medium">Name</th>
-                      <th className="pb-4 font-medium">College</th>
-                      <th className="pb-4 font-medium">Email</th>
-                      <th className="pb-4 font-medium">Phone</th>
-                      <th className="pb-4 font-medium">Message</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {contacts.map((c, i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td className="py-4 pr-4">{c.name}</td>
-                        <td className="py-4 pr-4 text-devnest-muted">{c.college}</td>
-                        <td className="py-4 pr-4">{c.email}</td>
-                        <td className="py-4 pr-4">{c.phone}</td>
-                        <td className="py-4 text-sm text-devnest-muted max-w-xs truncate">{c.message}</td>
-                      </tr>
-                    ))}
-                    {contacts.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="py-8 text-center text-devnest-muted">No requests found</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </>
-        )}
-
+        {activeTab === 'inquiries' && <InquiriesManager />}
         {activeTab === 'projects' && <ProjectsManager />}
         {activeTab === 'services' && <ServicesManager />}
         {activeTab === 'config' && <SiteConfigManager />}

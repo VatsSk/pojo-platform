@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Services = () => {
   const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8081/api/public/services')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/services`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -15,13 +15,6 @@ const Services = () => {
       });
   }, []);
 
-  const renderIcon = (iconName: string) => {
-    const IconComponent = (Icons as any)[iconName || 'Code'];
-    if (IconComponent) {
-      return <IconComponent size={32} />;
-    }
-    return <Icons.Code size={32} />;
-  };
 
   return (
     <div className="pt-24 px-6 min-h-screen">
@@ -45,14 +38,24 @@ const Services = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.05 }}
-              whileHover={{ y: -5 }}
-              className="glass-card p-8 rounded-2xl group cursor-pointer text-center"
+              className="glass-card p-8 rounded-2xl group cursor-pointer text-center h-full block hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-shadow duration-300"
             >
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-devnest-mint mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                {renderIcon(service.icon)}
-              </div>
+              <Link to={`/services/${encodeURIComponent(service.title.toLowerCase().replace(/\s+/g, '-'))}`} className="block h-full flex flex-col">
+              {service.imageUrl && (
+                <div className="w-full h-48 bg-white/5 rounded-xl mb-6 overflow-hidden">
+                  <img src={service.imageUrl} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                </div>
+              )}
               <h3 className="text-xl font-bold mb-2 group-hover:text-devnest-mint transition-colors">{service.title}</h3>
-              <p className="text-sm text-devnest-muted mt-2">{service.description}</p>
+              
+              {service.tags && service.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4 justify-center">
+                  {service.tags.map((tag: string, i: number) => (
+                    <span key={i} className="px-2 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-white/80">{tag}</span>
+                  ))}
+                </div>
+              )}
+              </Link>
             </motion.div>
           ))}
           {services.length === 0 && (

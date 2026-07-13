@@ -1,8 +1,49 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Terminal, Globe, MessageSquare, Share2, Hash } from 'lucide-react';
+import { Terminal, Mail, Phone } from 'lucide-react';
+
+const LinkedinIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const InstagramIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
+const TwitterIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+  </svg>
+);
 
 const Footer = () => {
+  const [siteConfig, setSiteConfig] = React.useState<any>({
+    contactEmail: 'pojo.platform@gmail.com',
+    contactPhone: '+91 8051142835',
+    linkedinUrl: 'https://linkedin.com',
+    instagramUrl: 'https://instagram.com',
+    twitterUrl: 'https://twitter.com'
+  });
+
+  React.useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/site-config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setSiteConfig((prev: any) => ({ ...prev, ...data.data }));
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+
   return (
     <footer className="border-t border-white/5 bg-devnest-darker pt-20 pb-10">
       <div className="container mx-auto px-6 md:px-12">
@@ -19,11 +60,26 @@ const Footer = () => {
             <p className="text-devnest-muted max-w-md text-sm leading-relaxed">
               A premium platform created by industry software engineers to help engineering and college students confidently overcome technical challenges, build better projects, and prepare for their tech careers.
             </p>
+            
+            <div className="mt-6 flex flex-col gap-3">
+              <a href={`mailto:${siteConfig.contactEmail}`} className="flex items-center gap-3 text-sm text-devnest-muted hover:text-devnest-mint transition-colors w-fit">
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                  <Mail size={16} />
+                </div>
+                {siteConfig.contactEmail}
+              </a>
+              <a href={`tel:${siteConfig.contactPhone.replace(/\s+/g, '')}`} className="flex items-center gap-3 text-sm text-devnest-muted hover:text-devnest-mint transition-colors w-fit">
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                  <Phone size={16} />
+                </div>
+                {siteConfig.contactPhone}
+              </a>
+            </div>
+
             <div className="flex items-center gap-4 mt-8">
-              <SocialIcon Icon={Hash} href="#" />
-              <SocialIcon Icon={MessageSquare} href="#" />
-              <SocialIcon Icon={Share2} href="#" />
-              <SocialIcon Icon={Globe} href="#" />
+              {siteConfig.linkedinUrl && <SocialIcon Icon={LinkedinIcon} href={siteConfig.linkedinUrl} />}
+              {siteConfig.instagramUrl && <SocialIcon Icon={InstagramIcon} href={siteConfig.instagramUrl} />}
+              {siteConfig.twitterUrl && <SocialIcon Icon={TwitterIcon} href={siteConfig.twitterUrl} />}
             </div>
           </div>
           

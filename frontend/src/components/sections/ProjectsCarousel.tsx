@@ -1,9 +1,21 @@
-import { useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ProjectsCarousel = () => {
+  const [featuredProjects, setFeaturedProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/projects`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const featured = data.data.filter((p: any) => p.featured);
+          setFeaturedProjects(featured);
+        }
+      })
+      .catch(err => console.error("Error fetching featured projects:", err));
+  }, []);
   const projects = [
     {
       title: 'Nexus Analytics',
@@ -27,7 +39,7 @@ const ProjectsCarousel = () => {
       gradient: 'from-orange-500 to-red-500',
     },
   ];
-
+  const displayProjects = featuredProjects.length > 0 ? featuredProjects : projects;
   return (
     <section className="relative py-32 px-6 bg-devnest-darker border-y border-white/5">
       <div className="container mx-auto max-w-7xl">
@@ -48,8 +60,8 @@ const ProjectsCarousel = () => {
 
         {/* Horizontal Scroll Container */}
         <div className="flex gap-8 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide">
-          {projects.map((project, index) => (
-            <ProjectCard key={index} project={project} index={index} />
+          {displayProjects.map((project, index) => (
+            <ProjectCard key={project.id || index} project={project} index={index} />
           ))}
         </div>
       </div>
@@ -75,48 +87,50 @@ const ProjectCard = ({ project, index }: { project: any; index: number }) => {
       transition={{ duration: 0.8, delay: index * 0.2 }}
       className="min-w-[350px] md:min-w-[500px] snap-center group cursor-hover"
     >
-      <div className="relative overflow-hidden rounded-3xl bg-devnest-card border border-white/10 hover:border-white/20 transition-all duration-500">
+      <Link to={project.id ? `/projects/${encodeURIComponent(project.title.toLowerCase().replace(/\s+/g, '-'))}` : "/projects"} className="block h-full">
+        <div className="relative overflow-hidden rounded-3xl bg-devnest-card border border-white/10 hover:border-white/20 transition-all duration-500 h-full">
         {/* Image Container */}
-        <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden">
-          <motion.img
-            style={{ y }}
-            src={project.image}
-            alt={project.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-          />
-          
-          {/* Gradient Overlay */}
-          <div className={`absolute inset-0 bg-gradient-to-t ${project.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
-          
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-devnest-card via-transparent to-transparent" />
-        </div>
+        {(project.image || project.imageUrl) && (
+          <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden">
+            <motion.img
+              style={{ y }}
+              src={project.image || project.imageUrl}
+              alt={project.title}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+            
+            {/* Gradient Overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-t ${project.gradient || ''} opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
+            
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-devnest-card via-transparent to-transparent" />
+          </div>
+        )}
 
         {/* Content */}
         <div className="p-8">
-          <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold mb-4 bg-gradient-to-r ${project.gradient} text-white`}>
+          <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold mb-4 bg-gradient-to-r ${project.gradient || 'from-devnest-mint to-blue-500'} text-white`}>
             {project.category}
           </span>
           
-          <h3 className="text-3xl md:text-4xl font-bold mb-4 text-white group-hover:text-gradient transition-all duration-300">
+          <h3 className="text-3xl md:text-4xl font-bold text-white group-hover:text-gradient transition-all duration-300">
             {project.title}
           </h3>
           
-          <p className="text-lg text-devnest-muted mb-6 leading-relaxed">
-            {project.description}
-          </p>
-
-          <Link
-            to="/projects"
-            className="inline-flex items-center gap-2 text-devnest-mint font-semibold hover:gap-4 transition-all duration-300"
-          >
-            View Case Study <ArrowRight size={20} />
-          </Link>
+          {project.technologies && project.technologies.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {project.technologies.slice(0, 4).map((t: string, idx: number) => (
+                <span key={idx} className="text-xs bg-white/10 px-2 py-1 rounded text-devnest-mint">{t}</span>
+              ))}
+              {project.technologies.length > 4 && <span className="text-xs bg-white/5 px-2 py-1 rounded text-devnest-muted">+{project.technologies.length - 4}</span>}
+            </div>
+          )}
         </div>
 
         {/* Glow Effect */}
-        <div className={`absolute -bottom-20 -right-20 w-60 h-60 bg-gradient-to-br ${project.gradient} rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
-      </div>
+        <div className={`absolute -bottom-20 -right-20 w-60 h-60 bg-gradient-to-br ${project.gradient || 'from-devnest-mint to-blue-500'} rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
+        </div>
+      </Link>
     </motion.div>
   );
 };

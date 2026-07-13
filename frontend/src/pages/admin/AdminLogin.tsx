@@ -13,7 +13,7 @@ const AdminLogin = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8081/api/auth/login', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -61,7 +61,7 @@ const AdminLogin = () => {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className="w-full bg-devnest-darker border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-devnest-mint focus:ring-1 focus:ring-devnest-mint transition-all" 
-                placeholder="admin@devnest.in" 
+                placeholder="admin@pojo.dev" 
               />
             </div>
           </div>
