@@ -13,14 +13,11 @@ public class ContactRequestDto {
 
     private String college;
 
-    @NotBlank(message = "Department is required")
     private String department;
 
-    @NotBlank(message = "Academic year is required")
+
     private String academicYear;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Valid email is required")
     private String email;
 
     @NotBlank(message = "Phone number is required")
@@ -30,7 +27,7 @@ public class ContactRequestDto {
     @NotBlank(message = "Preferred contact method is required")
     private String preferredContact;
 
-    @NotBlank(message = "Concern is required")
+
     private String concern;
 
     @Size(max = 2000, message = "Message cannot exceed 2000 characters")
