@@ -58,8 +58,8 @@ public class ContactService {
         
         contactRequestRepository.save(contact);
         
-        emailService.notifyAdminOfContact(request.getName(), request.getEmail(), request.getPhone(), request.getMessage());
-        emailService.sendStudentAcknowledgement(request.getName(), request.getEmail());
+        emailService.notifyAdminOfChat(request.getName(), request.getEmail(), request.getPhone(), request.getMessage());
+        emailService.sendStudentChatAcknowledgement(request.getName(), request.getEmail());
         
         return new ApiResponse<>(true, "Chat inquiry submitted successfully");
     }
