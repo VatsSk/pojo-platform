@@ -209,7 +209,7 @@ const TechStackSphere = () => {
           </div>
 
           <div
-            className="relative w-full h-[680px] flex items-center justify-center select-none touch-none cursor-grab active:cursor-grabbing"
+            className="relative w-full h-[400px] sm:h-[500px] md:h-[680px] flex items-center justify-center select-none touch-pan-y cursor-grab active:cursor-grabbing scale-[0.65] sm:scale-75 md:scale-100"
             style={{ perspective: `${PERSPECTIVE}px`, perspectiveOrigin: '50% 50%' }}
             onPointerDownCapture={handlePointerDownCapture}
             onPointerDown={handlePointerDown}

@@ -14,7 +14,7 @@ const ChatWidget = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: "Hey there! 👋 What's your vibe?",
+      text: "How can I help you?",
       sender: 'bot',
       timestamp: new Date(),
     },
@@ -25,6 +25,7 @@ const ChatWidget = () => {
     name: '',
     email: '',
     phone: '',
+    message: '',
   });
   const [isTyping, setIsTyping] = useState(false);
 
@@ -72,6 +73,10 @@ const ChatWidget = () => {
 
     // Handle conversation flow
     if (step === 'initial') {
+      setUserData({ ...userData, message: userInput });
+      setStep('name');
+      botReply(`Got it! What's your name?`);
+    } else if (step === 'name') {
       setUserData({ ...userData, name: userInput });
       setStep('email');
       botReply(`Nice to meet you, ${userInput}! 🔥 Drop your email so we can stay connected ✨`);
@@ -89,9 +94,6 @@ const ChatWidget = () => {
         return;
       }
       setUserData({ ...userData, phone: userInput });
-      setStep('message');
-      botReply("Awesome! 🙌 Now, what's your main concern or how can we help you today?");
-    } else if (step === 'message') {
       setStep('done');
       setIsTyping(true);
 
@@ -103,9 +105,9 @@ const ChatWidget = () => {
           body: JSON.stringify({
             name: userData.name,
             email: userData.email,
-            phone: userData.phone,
+            phone: userInput,
             college: 'N/A',
-            message: userInput,
+            message: userData.message,
           }),
         });
         
@@ -133,13 +135,13 @@ const ChatWidget = () => {
   const getPlaceholder = () => {
     switch (step) {
       case 'initial':
+        return "Type your concern...";
+      case 'name':
         return "Type your name...";
       case 'email':
         return "Your email...";
       case 'phone':
         return "Your phone number...";
-      case 'message':
-        return "Type your concern...";
       default:
         return "Type a message...";
     }
@@ -157,7 +159,7 @@ const ChatWidget = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-28 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-tr from-purple-600 via-pink-500 to-blue-500 flex items-center justify-center text-white shadow-2xl shadow-purple-500/50 cursor-pointer group"
+            className="fixed bottom-28 right-6 z-[60] w-16 h-16 rounded-full bg-gradient-to-tr from-purple-600 via-pink-500 to-blue-500 flex items-center justify-center text-white shadow-2xl shadow-purple-500/50 cursor-pointer group"
           >
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
@@ -171,7 +173,7 @@ const ChatWidget = () => {
               transition={{ repeat: Infinity, duration: 2 }}
               className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 rounded-2xl rounded-br-none bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-bold text-white shadow-xl whitespace-nowrap pointer-events-none"
             >
-              Hey, how can i help you dude? ✨
+              How can I help you? ✨
             </motion.div>
           </motion.button>
         )}
@@ -185,7 +187,7 @@ const ChatWidget = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] h-[600px] bg-devnest-card rounded-3xl shadow-2xl border border-white/10 flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-6 z-[60] w-[380px] h-[600px] bg-devnest-card rounded-3xl shadow-2xl border border-white/10 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 p-4 flex items-center justify-between">
@@ -210,7 +212,7 @@ const ChatWidget = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-devnest-darker">
+            <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-devnest-darker">
               {messages.map((message) => (
                 <motion.div
                   key={message.id}
